@@ -20,10 +20,14 @@ ENTRY_TEXT = (
 MAX_CHARS = 140
 
 
-def main() -> None:
-    text = ENTRY_TEXT
+def validate(text: str) -> None:
+    """Enforce the sealed scorer's gate on the entry line.
 
-    # Gate in code, so a bad line can never be written out.
+    Raises ValueError unless ``text`` is non-empty, non-whitespace,
+    at most MAX_CHARS characters, and does not end with a newline.
+    Kept separate from main() so the gate can be unit-tested without
+    writing a file, and so a bad line can never reach /output.
+    """
     if not text or not text.strip():
         raise ValueError("entry text must not be empty or only whitespace")
     if len(text) > MAX_CHARS:
@@ -32,6 +36,13 @@ def main() -> None:
         )
     if text.endswith("\n"):
         raise ValueError("entry text must not end with a newline")
+
+
+def main() -> None:
+    text = ENTRY_TEXT
+
+    # Gate in code, so a bad line can never be written out.
+    validate(text)
 
     os.makedirs("/output", exist_ok=True)
     path = "/output/entry.txt"
